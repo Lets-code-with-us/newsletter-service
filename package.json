@@ -1,0 +1,23 @@
+{
+  "name": "app",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build --compile --outfile=./.bin/app ./src/*.ts",
+    "start": "./dist/app"
+  },
+  "dependencies": {
+    "@types/nodemailer": "^6.4.17",
+    "aws-sdk": "^2.1692.0",
+    "bullmq": "^5.56.4",
+    "elysia": "latest",
+    "ioredis": "^5.6.1",
+    "mongoose": "^8.16.3",
+    "nodemailer": "^7.0.5"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
+}
