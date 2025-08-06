@@ -1,25 +1,31 @@
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
-import { sendMails } from "../utils/mailer";
 
-const connection = new IORedis({ maxRetriesPerRequest: null });
+const connection = new IORedis(process.env.REDISURI!, {
+  maxRetriesPerRequest: null,
+});
 
 export const WorkerMailJob = async (subject: string, template: string) => {
   try {
-    const worker = new Worker(
+    new Worker(
       "newsletter-queue",
       async (job) => {
         const data = await job.data;
         if (!data) {
-          return "Not able to get the emai";
+          return "Not able to get the email";
+        }
+        const userMails = JSON.parse(data);
+        for (let index = 0; index < userMails.length; index++) {
+          const element = userMails[index];
+          console.log(element);
         }
 
         // send mail
-        const info = await sendMails({
-          email: data,
-          body: template,
-          subject: subject,
-        });
+        // const info = await sendMails({
+        //   email: data,
+        //   body: template,
+        //   subject: subject,
+        // });
       },
       {
         connection,

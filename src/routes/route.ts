@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { Newsletter } from "../schema/newsletter.schema";
 import { myQueue } from "../utils/mailqueue";
 import { WorkerMailJob } from "../queues/worker";
+import { clerkClient } from "../utils/clerk";
 
 interface PublishRequestBody {
   subject: string;
@@ -31,23 +32,26 @@ Router.post("/publish", async (ctx) => {
     }
     const { subject, template } = data;
 
-    const users = await Newsletter.find({
-      subscriber: true,
-    });
-    if (!users || users.length == 0) {
-      return {
-        message: "User not present",
-      };
-    }
-    for (let index = 0; index < users.length; index++) {
-      await myQueue.add("emails", users[index].email);
-      await WorkerMailJob(subject, template);
-    }
+    const user = await clerkClient.users.getUserList();
+    const users = user.data.map((u) => u.emailAddresses[0].emailAddress);
+
+    // const users = await Newsletter.find({
+    //   subscriber: true,
+    // });
+    // if (!users || users.length == 0) {
+    //   return {
+    //     message: "User not present",
+    //   };
+    // }
+
+    await myQueue.add("emails", JSON.stringify(users));
+    await WorkerMailJob(subject, template);
 
     return {
       message: "Queued",
     };
   } catch (error) {
+    console.log(error);
     return error;
   }
 });
