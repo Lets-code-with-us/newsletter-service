@@ -1,3 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config({
+  path:".env"
+})
+
 import { createTransport } from "nodemailer";
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
