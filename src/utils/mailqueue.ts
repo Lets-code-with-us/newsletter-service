@@ -1,7 +1,7 @@
 import { Queue, QueueEvents } from "bullmq";
 import IORedis from "ioredis";
 
-const connection = new IORedis(process.env.REDISURL!, {
+const connection = new IORedis(process.env.REDISDB!, {
   maxRetriesPerRequest: null,
 });
 

@@ -32,8 +32,8 @@ Router.post("/publish", async (ctx) => {
     }
     const { subject, template } = data;
 
-    const user = await clerkClient.users.getUserList();
-    const users = user.data.map((u) => u.emailAddresses[0].emailAddress);
+    // const user = await clerkClient.users.getUserList();
+    // const users = user.data.map((u) => u.emailAddresses[0].emailAddress);
 
     // const users = await Newsletter.find({
     //   subscriber: true,
@@ -44,8 +44,8 @@ Router.post("/publish", async (ctx) => {
     //   };
     // }
 
-    await myQueue.add("emails", JSON.stringify(users));
-    await WorkerMailJob(subject, template);
+    // await myQueue.add("emails", JSON.stringify(users));
+    // await WorkerMailJob(subject, template);
 
     return {
       message: "Queued",
