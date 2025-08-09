@@ -9,6 +9,9 @@ const NewsletterSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  unsubscribeReason:{
+    type:String
+  }
 },{timestamps:true});
 
 

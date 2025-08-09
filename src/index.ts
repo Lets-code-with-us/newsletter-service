@@ -5,12 +5,14 @@ dotenv.config({
 import { Elysia, status } from "elysia";
 import { Router } from "./routes/route";
 import { swagger } from "@elysiajs/swagger";
-export const app = new Elysia();
 import { myQueue } from "./utils/mailqueue";
 import { WorkerMailJob } from "./queues/worker";
 import { clerkClient } from "./utils/clerk";
 import { connectDB } from "./utils/db";
+import { cors } from '@elysiajs/cors'
 
+
+export const app = new Elysia().use(cors());
 
 app.use(Router);
 app.use(swagger());

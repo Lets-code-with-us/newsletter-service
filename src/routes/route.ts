@@ -73,6 +73,7 @@ Router.post("/unsubscribe", async (ctx) => {
       },
       {
         subscriber: false,
+        unsubscribeReason:data.reason
       }
     );
     return status(200, "OK");
