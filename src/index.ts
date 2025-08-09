@@ -44,7 +44,7 @@ app
                 },
               });
               await WorkerMailJob(info.subject, info.body);
-              ws.send(`Queued - ${statusMail}`);
+              ws.send(`${statusMail}`);
             }
           }
         };
@@ -53,7 +53,7 @@ app
       if (info.message === "STATUS") {
         const StatusInfo = async () => {
           const jobs = await myQueue.getJobCounts();
-          ws.send(`status - ${JSON.stringify(jobs)}`);
+          ws.send(`${JSON.stringify(jobs)}`);
         };
         setInterval(() => {
           StatusInfo();
