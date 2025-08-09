@@ -6,6 +6,8 @@
 .pnp.js
 /dist
 /.dist
+/.bin
+/bin
 
 .env
 .env(*).
