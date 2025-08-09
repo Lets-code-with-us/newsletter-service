@@ -12,15 +12,19 @@ const connection = new IORedis(process.env.REDIS_DB!,{
   }
 );
 
+let JOBS_PROCESSING = 0
 export const WorkerMailJob = async (subject: string, template: string) => {
   try {
     new Worker(
       "newsletter-queue",
       async (job) => {
+        
         const data = await job.data;
         if (!data) {
           return "Not able to get the email";
         }
+        JOBS_PROCESSING += 1
+        console.log(JOBS_PROCESSING)
         setTimeout(async () => {
           const info = await mailer.sendMail({
             from: `Letscode <letscode@lets-code.co.in>`,
@@ -28,7 +32,8 @@ export const WorkerMailJob = async (subject: string, template: string) => {
             subject: subject,
             html: template,
           });
-        }, 3000);
+          console.log(info.accepted)
+        }, 8000);
       },
       {
         connection,
