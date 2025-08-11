@@ -13,12 +13,23 @@ import { cors } from "@elysiajs/cors";
 
 export const app = new Elysia().use(cors());
 let page = 1;
-
+let index = 0;
+let ID;
+let allUsers = [];
 
 app.use(Router);
 app.use(swagger());
 
 app.get("/", () => status(200, "OK"));
+app.get("/metrics", async () => {
+  try {
+    const info = await myQueue.exportPrometheusMetrics();
+    return status(200, info);
+  } catch (error) {
+    return status(500, "Internal Server Error");
+  }
+});
+
 app
   .ws("/ws", {
     open(ws) {
@@ -28,37 +39,26 @@ app
       const info = Object(message as any);
       if (info.message === "BULKMAIL") {
         const UserMails = async () => {
-          let statusMail = 0;
           while (true) {
             console.log("fetching users");
             const res = await clerkClient.users.getUserList({
               limit: 100,
               offset: (page - 1) * 100,
             });
-            let allUsers = await res.data;
-            const mails = allUsers.map((m) => m.emailAddresses[0].emailAddress);
-            if (mails.length > 0) {
-              for (let index = 0; index < mails.length; index++) {
-                statusMail += 1;
-                await myQueue.add("emails", mails[index], {
-                  removeOnComplete: {
-                    age: 2 * 3600,
-                  },
-                  removeOnFail: {
-                    age: 2 * 3600,
-                  },
-                });
-                await WorkerMailJob(info.subject, info.body);
-                ws.send(`${statusMail}`);
-              }
-            }
-
+            allUsers.push(...res.data);
             if (res.data.length < 100) break;
             page++;
           }
-          // console.log(allUsers);
-          console.log(statusMail);
 
+          let mails = allUsers.map((m) => m.emailAddresses[0].emailAddress);
+          if (mails) {
+            ws.send("Mails Queued");
+          }
+
+          for (let index = 0; index < mails.length; index++) {
+            myQueue.add("emails", mails[index]);
+          }
+          WorkerMailJob(info.subject, info.body);
         };
         UserMails();
       }
@@ -69,7 +69,7 @@ app
         };
         setInterval(() => {
           StatusInfo();
-        }, 10000);
+        }, 2000);
       }
     },
   })
