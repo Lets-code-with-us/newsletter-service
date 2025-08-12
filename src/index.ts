@@ -10,12 +10,13 @@ import { WorkerMailJob } from "./queues/worker";
 import { clerkClient } from "./utils/clerk";
 import { connectDB } from "./utils/db";
 import { cors } from "@elysiajs/cors";
+import { errorLogger,infoLogger } from "./utils/logger";
 
 export const app = new Elysia().use(cors());
 let page = 1;
-let index = 0;
-let ID;
 let allUsers = [];
+let MAX = 0;
+let index = 0;
 
 app.use(Router);
 app.use(swagger());
@@ -40,7 +41,7 @@ app
       if (info.message === "BULKMAIL") {
         const UserMails = async () => {
           while (true) {
-            console.log("fetching users");
+            infoLogger("Fetching users")
             const res = await clerkClient.users.getUserList({
               limit: 100,
               offset: (page - 1) * 100,
@@ -52,13 +53,22 @@ app
 
           let mails = allUsers.map((m) => m.emailAddresses[0].emailAddress);
           if (mails) {
+            MAX = mails.length;
             ws.send("Mails Queued");
           }
 
-          for (let index = 0; index < mails.length; index++) {
-            myQueue.add("emails", mails[index]);
-          }
-          WorkerMailJob(info.subject, info.body);
+          let timerID = setInterval(() => {
+            if (index != MAX) {
+              infoLogger("Queued")
+              myQueue.add("emails", mails[index]);
+              WorkerMailJob(info.subject, info.body);
+              index += 1
+            } else {
+              infoLogger("Cleared")
+              clearInterval(timerID);
+              return;
+            }
+          }, 5000);
         };
         UserMails();
       }

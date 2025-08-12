@@ -19,7 +19,8 @@
     "elysia": "latest",
     "ioredis": "^5.6.1",
     "mongoose": "^8.16.3",
-    "nodemailer": "^7.0.5"
+    "nodemailer": "^7.0.5",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "bun-types": "latest"

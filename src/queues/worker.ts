@@ -6,12 +6,12 @@ dotenv.config({
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import { mailer } from "../utils/mail";
+import { errorLogger, infoLogger } from "../utils/logger";
 
 const connection = new IORedis(process.env.REDIS_DB!, {
   maxRetriesPerRequest: null,
 });
 
-let JOBS_PROCESSING = 0;
 export const WorkerMailJob = async (subject: string, template: string) => {
   try {
     new Worker(
@@ -21,7 +21,6 @@ export const WorkerMailJob = async (subject: string, template: string) => {
         if (!data) {
           return "Not able to get the email";
         }
-        JOBS_PROCESSING += 1;
 
         const info = await mailer.sendMail({
           from: `Letscode <letscode@lets-code.co.in>`,
@@ -29,8 +28,7 @@ export const WorkerMailJob = async (subject: string, template: string) => {
           subject: subject,
           html: template,
         });
-        console.log(info.accepted);
-        console.log(JOBS_PROCESSING)
+        infoLogger(info.accepted[0] as string);
       },
       {
         connection,
@@ -41,6 +39,7 @@ export const WorkerMailJob = async (subject: string, template: string) => {
       }
     );
   } catch (error) {
+    errorLogger(JSON.stringify(error));
     return error;
   }
 };
