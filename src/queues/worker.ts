@@ -6,7 +6,7 @@ dotenv.config({
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
 import { mailer } from "../utils/mail";
-import { errorLogger, infoLogger } from "../utils/logger";
+// import { errorLogger, infoLogger } from "../utils/logger";
 
 const connection = new IORedis(process.env.REDIS_DB!, {
   maxRetriesPerRequest: null,
@@ -28,7 +28,8 @@ export const WorkerMailJob = async (subject: string, template: string) => {
           subject: subject,
           html: template,
         });
-        infoLogger(info.accepted[0] as string);
+        console.log(info.accepted[0])
+        // infoLogger(info.accepted[0] as string);
       },
       {
         connection,
@@ -39,7 +40,8 @@ export const WorkerMailJob = async (subject: string, template: string) => {
       }
     );
   } catch (error) {
-    errorLogger(JSON.stringify(error));
+    console.log(error)
+    // errorLogger(JSON.stringify(error));
     return error;
   }
 };
