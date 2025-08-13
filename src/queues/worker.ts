@@ -22,14 +22,22 @@ export const WorkerMailJob = async (subject: string, template: string) => {
           return "Not able to get the email";
         }
 
-        const info = await mailer.sendMail({
-          from: `Letscode <letscode@lets-code.co.in>`,
-          to: data,
-          subject: subject,
-          html: template,
-        });
-        console.log(info.accepted[0])
-        // infoLogger(info.accepted[0] as string);
+        mailer.sendMail(
+          {
+            from: `Letscode <letscode@lets-code.co.in>`,
+            to: data,
+            subject: subject,
+            html: template,
+          },
+          (err, info) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            console.log(info.envelope);
+            console.log(info.messageId);
+          }
+        );
       },
       {
         connection,
@@ -40,7 +48,7 @@ export const WorkerMailJob = async (subject: string, template: string) => {
       }
     );
   } catch (error) {
-    console.log(error)
+    console.log(error);
     // errorLogger(JSON.stringify(error));
     return error;
   }

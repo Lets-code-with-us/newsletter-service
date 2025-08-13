@@ -41,8 +41,6 @@ app
       if (info.message === "BULKMAIL") {
         const UserMails = async () => {
           while (true) {
-            console.log("Fetching Users")
-            // infoLogger("Fetching users")
             const res = await clerkClient.users.getUserList({
               limit: 100,
               offset: (page - 1) * 100,
@@ -55,30 +53,26 @@ app
           let mails = allUsers.map((m) => m.emailAddresses[0].emailAddress);
           if (mails) {
             MAX = mails.length;
-            ws.send("Mails Queued");
+            ws.send(`Mails Queued - ${MAX}`);
           }
 
           let timerID = setInterval(() => {
             if (index != MAX) {
-              console.log("Queues")
-              // infoLogger("Queued")
               myQueue.add("emails", mails[index]);
               WorkerMailJob(info.subject, info.body);
               index += 1
             } else {
               console.log("Cleared")
-              // infoLogger("Cleared")
               clearInterval(timerID);
               return;
             }
-          }, 5000);
+          }, 2000);
         };
         UserMails();
       }
       if (info.message === "STATUS") {
         const StatusInfo = async () => {
           const jobs = await myQueue.getJobCounts();
-          // infoLogger("Jobs")
           ws.send(`${JSON.stringify(jobs)}`);
         };
         setInterval(() => {
