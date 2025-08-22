@@ -59,11 +59,15 @@ app
 
           let timerID = setInterval(() => {
             if (index != MAX) {
+              console.log("adding")
               myQueue.add("emails", mails[index]);
+              console.log("added")
               WorkerMailJob(info.subject, info.body);
               index += 1
             } else {
               console.log("Cleared")
+              index = 0
+              MAX = 0
               clearInterval(timerID);
               return;
             }
@@ -72,12 +76,13 @@ app
         UserMails();
       }
       if (info.message === "STATUS") {
+        
         const StatusInfo = async () => {
           const jobs = await myQueue.getJobCounts();
           ws.send(`${JSON.stringify(jobs)}`);
         };
-        setInterval(() => {
-          StatusInfo();
+        setInterval(async() => {
+          await StatusInfo();
         }, 2000);
       }
     },

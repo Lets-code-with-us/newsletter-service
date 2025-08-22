@@ -11,6 +11,7 @@ const connection = new IORedis(process.env.REDIS_DB!, {
 });
 
 export const myQueue = new Queue("newsletter-queue", {
-  connection: connection,
+    connection   
 });
+
 
