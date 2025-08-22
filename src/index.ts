@@ -53,6 +53,7 @@ app
           let mails = allUsers.map((m) => m.emailAddresses[0].emailAddress);
           if (mails) {
             MAX = mails.length;
+            console.log('emails',MAX)
             ws.send(`Mails Queued - ${MAX}`);
           }
 
